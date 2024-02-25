@@ -34,5 +34,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         response.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
         response.setMessage(e.getMessage());
         return response;
-    }    
+    }
+
+    @ExceptionHandler(DatabaseException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public AppException handleDatabaseException(DatabaseException e) {
+        AppException response = new AppException();
+        response.setTimestamp(LocalDateTime.now());
+        response.setStatus(HttpStatus.BAD_REQUEST.value());
+        response.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
+        response.setMessage(e.getMessage());
+        return response;
+    }
 }
