@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import hh.ont.shiftbooking.dto.CreateUserDto;
+import hh.ont.shiftbooking.exception.PasswordMatchException;
 import hh.ont.shiftbooking.service.UserDetailService;
 import jakarta.validation.Valid;
 
@@ -33,9 +34,7 @@ public class UserController {
                 "Tilin luonti epäonnistui",
                 HttpStatus.INTERNAL_SERVER_ERROR);
         } else {
-            return new ResponseEntity<>(
-                "Salasanat eivät täsmää.",
-                HttpStatus.BAD_REQUEST);
+            throw new PasswordMatchException("Salasanat eivät täsmää");
         }
     }
 }
