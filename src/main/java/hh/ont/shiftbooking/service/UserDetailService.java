@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import hh.ont.shiftbooking.dto.CreateUserDto;
+import hh.ont.shiftbooking.exception.UsernameExistsException;
 import hh.ont.shiftbooking.model.User;
 import hh.ont.shiftbooking.repository.UserRepository;
 
@@ -29,7 +30,7 @@ public class UserDetailService {
             repository.save(user);
             return true;
         } else {
-            return false;
+            throw new UsernameExistsException("Valitse toinen käyttäjätunnus");
         }
     }
 
