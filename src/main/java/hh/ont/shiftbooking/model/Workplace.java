@@ -7,7 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
@@ -41,8 +40,7 @@ public class Workplace {
     private String tel;
 
     @OneToOne
-    @MapsId
-    @JoinColumn(name = "POST_ID")
+    @JoinColumn(name = "ZIP", referencedColumnName = "POST_ID")
     @NotNull
     private PostOffice zip;
 
