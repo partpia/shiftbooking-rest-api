@@ -8,18 +8,21 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "WORKPLACE")
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class Workplace {
     
     @Id
@@ -39,9 +42,9 @@ public class Workplace {
     @NotEmpty
     private String tel;
 
-    @OneToOne
-    @JoinColumn(name = "ZIP", referencedColumnName = "POST_ID")
     @NotNull
+    @OneToOne
+    @PrimaryKeyJoinColumn
     private PostOffice zip;
 
     @ManyToOne
