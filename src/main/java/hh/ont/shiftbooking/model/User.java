@@ -76,4 +76,16 @@ public class User {
         this.shifts = shifts;
     }
 
+    public User(String firstName, String lastName, String email, String tel, String username, String password,
+            Role role, List<Shift> shifts, List<Workplace> myWorkplaces) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.tel = tel;
+        this.username = username;
+        this.password = password;
+        this.role = role;
+        this.shifts = shifts;
+        this.myWorkplaces = myWorkplaces;
+    }
 }
