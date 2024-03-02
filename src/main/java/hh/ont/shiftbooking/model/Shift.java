@@ -13,7 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
@@ -59,7 +58,7 @@ public class Shift {
 
     @NotNull
     @OneToOne
-    @PrimaryKeyJoinColumn
+    @JoinColumn(name = "WORKPLACE_ID")
     private Workplace location;
 
     public Shift(LocalDateTime startDateTime, LocalDateTime endDateTime, String description,
@@ -89,4 +88,14 @@ public class Shift {
         this.location = location;
     }
 
+    public Shift(Long shiftId, LocalDateTime startDateTime, LocalDateTime endDateTime, String description,
+            ShiftStatus status, User employee, Workplace location) {
+        this.shiftId = shiftId;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
+        this.description = description;
+        this.status = status;
+        this.employee = employee;
+        this.location = location;
+    }
 }

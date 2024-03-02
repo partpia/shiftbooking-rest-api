@@ -8,7 +8,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -44,7 +43,7 @@ public class Workplace {
 
     @NotNull
     @OneToOne
-    @PrimaryKeyJoinColumn
+    @JoinColumn(name = "POST_ID")
     private PostOffice zip;
 
     @ManyToOne
@@ -56,5 +55,14 @@ public class Workplace {
         this.address = address;
         this.tel = tel;
         this.zip = zip;
+    }
+
+    public Workplace(@NotEmpty String title, @NotEmpty String address, @NotEmpty String tel, @NotNull PostOffice zip,
+            User contactPerson) {
+        this.title = title;
+        this.address = address;
+        this.tel = tel;
+        this.zip = zip;
+        this.contactPerson = contactPerson;
     }
 }
