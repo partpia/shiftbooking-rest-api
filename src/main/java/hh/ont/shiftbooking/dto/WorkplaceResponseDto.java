@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class WorkplaceResponseDto {
 
+    private Long id;
     private String title;
     private String address;
     private String tel;
@@ -18,6 +19,7 @@ public class WorkplaceResponseDto {
     private PostOffice zip;
 
     public WorkplaceResponseDto(Workplace workplace) {
+        this.id = workplace.getWorkplaceId();
         this.title = workplace.getTitle();
         this.address = workplace.getAddress();
         this.tel = workplace.getTel();
