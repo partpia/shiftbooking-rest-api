@@ -12,7 +12,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
@@ -53,11 +52,11 @@ public class Shift {
     private ShiftStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "userId", nullable = true)
+    @JoinColumn(name = "USER_ID", nullable = true)
     private User employee;
 
     @NotNull
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "WORKPLACE_ID")
     private Workplace location;
 
