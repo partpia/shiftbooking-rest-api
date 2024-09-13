@@ -42,12 +42,12 @@ public class Workplace {
     private String tel;
 
     @NotNull
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "POST_ID")
     private PostOffice zip;
 
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "USER_ID")
     private User contactPerson;
 
     public Workplace(String title, String address, String tel, PostOffice zip) {
