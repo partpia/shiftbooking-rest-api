@@ -58,4 +58,20 @@ public class ShiftController {
                 "Vuoron varaus epäonnistui.",
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    // varatun työvuoron peruminen
+    @PutMapping("/{id}/cancellations")
+    public ResponseEntity<String> cancelShift(@PathVariable Long id) throws Exception {
+
+        // TODO: työvuoron voi perua työvuoron varaaja tai admin
+        
+        boolean calcelled = shiftService.cancelShift(id);
+        return calcelled ? new ResponseEntity<>(
+            "Vuoro peruttu.",
+            HttpStatus.OK) :
+            new ResponseEntity<>(
+            "Vuoroa ei voi perua, koska vuoron alkuun on alle kolme vuorokautta. Ota yhteyttä työnantajaan.",
+            HttpStatus.BAD_REQUEST);
+    }
+    
 }

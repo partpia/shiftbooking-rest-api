@@ -1,5 +1,6 @@
 package hh.ont.shiftbooking.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -92,6 +93,38 @@ public class ShiftService {
         } catch (DatabaseException e) {
             throw new DatabaseException(e.getMessage());
         }
+    }
+
+    // poistaa työvuorolta työntekijän ja muuttaa vuoron statuksen varattavissa olevaksi (ShiftStatus.BOOKABLE)
+    // perumisen ehtona: työvuoron alkuun on oltava vähintään kolme päivää
+    public boolean cancelShift(Long id) throws Exception {
+
+        try {
+            Shift shift = shiftRepository.findById(id).orElseThrow(
+                () -> new DatabaseException("Vuoron tietoja ei löytynyt."));
+
+            if (shiftIsPossibleToCancel(shift)) {
+                shift.setEmployee(null);
+                shift.setStatus(ShiftStatus.BOOKABLE);
+                shiftRepository.save(shift);
+
+                return true;
+            }
+            return false;
+        } catch (DatabaseException e) {
+            throw new DatabaseException(e.getMessage());
+        } catch (Exception e) {
+            throw new DatabaseException("Vuoron peruutus epäonnistui. Ota yhteyttä työnantajaan.");
+        }
+    }
+
+    // tarkastaa onko vuoro peruttavissa
+    private boolean shiftIsPossibleToCancel(Shift calcelled) {
+        
+        LocalDateTime shiftStartTime = calcelled.getStartDateTime();
+        LocalDateTime deadline = shiftStartTime.minusDays(3);
+
+        return LocalDateTime.now().isBefore(deadline) ? true : false;
     }
 
     // tarkastaa onko vuoro varattavissa (ShiftStatus.BOOKABLE)
