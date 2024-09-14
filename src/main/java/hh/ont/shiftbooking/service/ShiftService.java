@@ -12,9 +12,12 @@ import hh.ont.shiftbooking.dto.ShiftResponseDto;
 import hh.ont.shiftbooking.enums.ShiftStatus;
 import hh.ont.shiftbooking.exception.DatabaseException;
 import hh.ont.shiftbooking.model.Shift;
+import hh.ont.shiftbooking.model.User;
 import hh.ont.shiftbooking.model.Workplace;
 import hh.ont.shiftbooking.repository.ShiftRepository;
+import hh.ont.shiftbooking.repository.UserRepository;
 import hh.ont.shiftbooking.repository.WorkplaceRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class ShiftService {
@@ -24,6 +27,9 @@ public class ShiftService {
 
     @Autowired
     WorkplaceRepository workplaceRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     // tallentaa uuden työvuoron tiedot tietokantaan
     public Shift saveShift(Shift shift) throws DatabaseException {
@@ -60,5 +66,36 @@ public class ShiftService {
             dtos.add(dto);
         }
         return dtos;
+    }
+
+    // lisää työvuorolle työntekijän ja muuttaa vuoron statuksen varatuksi (ShiftStatus.BOOKED)
+    @Transactional
+    public boolean bookShift(Long shiftId, Long userId) throws DatabaseException {
+
+        try {
+            // haetaan työvuoron tiedot
+            Shift shift = shiftRepository.findById(shiftId).orElseThrow(
+                () -> new DatabaseException("Vuoron tietoja ei löytynyt."));
+
+            if (isBookable(shift)) {
+                shift.setStatus(ShiftStatus.BOOKED);
+                
+                // haetaan työntekijän tiedot
+                User employee = userRepository.findById(userId).orElseThrow(
+                    () -> new DatabaseException("Virhe käyttäjätietojen haussa."));
+                
+                shift.setEmployee(employee);
+                shiftRepository.save(shift);
+                return true;
+            }
+            return false;
+        } catch (DatabaseException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
+    // tarkastaa onko vuoro varattavissa (ShiftStatus.BOOKABLE)
+    private boolean isBookable(Shift bookable) {
+        return bookable != null && bookable.getStatus().equals(ShiftStatus.BOOKABLE);
     }
 }
