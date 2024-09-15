@@ -74,4 +74,19 @@ public class ShiftController {
             HttpStatus.BAD_REQUEST);
     }
     
+    // vuoron muokkaaminen
+    @PutMapping()
+    public ResponseEntity<String> updateShift(@Valid @RequestBody Shift shift) throws Exception {
+
+        // TODO: vain vuoron lisännyt voi muokata
+    
+        boolean updated = shiftService.updateShiftDetails(shift);
+
+        return updated ? new ResponseEntity<>(
+            "Vuoro päivitetty.",
+            HttpStatus.OK) :
+            new ResponseEntity<>(
+            "Varattua vuoroa ei voi muokata.",
+            HttpStatus.BAD_REQUEST);
+    }
 }

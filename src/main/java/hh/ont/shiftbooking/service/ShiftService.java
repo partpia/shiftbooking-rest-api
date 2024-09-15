@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
@@ -23,14 +22,16 @@ import jakarta.transaction.Transactional;
 @Service
 public class ShiftService {
     
-    @Autowired
-    ShiftRepository shiftRepository;
+    private final ShiftRepository shiftRepository;
+    private final WorkplaceRepository workplaceRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    WorkplaceRepository workplaceRepository;
-
-    @Autowired
-    UserRepository userRepository;
+    public ShiftService(ShiftRepository shiftRepository, WorkplaceRepository workplaceRepository,
+            UserRepository userRepository) {
+        this.shiftRepository = shiftRepository;
+        this.workplaceRepository = workplaceRepository;
+        this.userRepository = userRepository;
+    }
 
     // tallentaa uuden työvuoron tiedot tietokantaan
     public Shift saveShift(Shift shift) throws DatabaseException {
@@ -115,6 +116,26 @@ public class ShiftService {
             throw new DatabaseException(e.getMessage());
         } catch (Exception e) {
             throw new DatabaseException("Vuoron peruutus epäonnistui. Ota yhteyttä työnantajaan.");
+        }
+    }
+
+    // muokkaa vuoron tietoja, vain varattavissa olevan vuoron tietoja voi muokata (ShiftStatus.BOOKABLE)
+    public boolean updateShiftDetails(Shift details) throws Exception {
+
+        try {
+            Long id = details.getShiftId();
+            Shift shift = shiftRepository.findById(id).orElseThrow(
+                () -> new DatabaseException("Vuoron tietoja ei löytynyt."));
+
+            if (isBookable(shift)) {
+                details.setStatus(ShiftStatus.BOOKABLE);
+                details.setShiftId(id);
+                shiftRepository.save(details);
+                return true;
+            }
+            return false;
+        } catch (NoSuchElementException e) {
+            throw new DatabaseException("Vuoron tietojen päivitys epäonnistui.");
         }
     }
 
