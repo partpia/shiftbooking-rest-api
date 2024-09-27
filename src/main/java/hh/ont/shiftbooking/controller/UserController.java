@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import hh.ont.shiftbooking.dto.CreateUserDto;
 import hh.ont.shiftbooking.exception.PasswordMatchException;
 import hh.ont.shiftbooking.service.UserDetailService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 
 @RestController
@@ -23,7 +25,7 @@ public class UserController {
 
     @Autowired
     private UserDetailService service;
-    
+
     // uuden käyttäjän/tilin lisääminen
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> createNewUser(@Valid @RequestBody CreateUserDto userDTO) throws Exception {
@@ -47,5 +49,21 @@ public class UserController {
     public Object getAccount(@PathVariable(required = true) Long id) throws Exception {
         return service.getAccountDetails(id);
     }
-    // TODO: put, delete
+    
+    // poistaa käyttäjätilin
+    // TODO: todentaminen, oikeus poistoon
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteAccount(@PathVariable @NotNull Long id) throws Exception {
+
+        boolean deleted = service.deleteAccount(id);
+
+        return deleted ? new ResponseEntity<>(
+            "Käyttätili poistettu.",
+            HttpStatus.OK) :
+            new ResponseEntity<>(
+            "Käyttäjätilin poisto epäonnistui.",
+            HttpStatus.BAD_REQUEST);
+    }
+
+    // TODO: put
 }

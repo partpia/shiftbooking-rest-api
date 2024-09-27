@@ -111,4 +111,28 @@ public class UserControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value("Tietojen haku epäonnistui."));
     }
+
+    @Test
+    @DisplayName("Testaa käyttäjätilin poiston rajapintaa, poisto onnistuu")
+    void deleteAccountReturnsOkTest() throws Exception {
+        
+        Mockito.when(userServiceMock.deleteAccount(Mockito.anyLong())).thenReturn(true);
+
+        mvc.perform(delete("/accounts/1"))
+            .andExpectAll(
+                status().isOk(),
+                content().string("Käyttätili poistettu."));
+    }
+
+    @Test
+    @DisplayName("Testaa käyttäjätilin poiston rajapintaa, poisto epäonnistuu")
+    void deleteAccountReturnsBadRequestTest() throws Exception {
+        
+        Mockito.when(userServiceMock.deleteAccount(Mockito.anyLong())).thenReturn(false);
+
+        mvc.perform(delete("/accounts/1"))
+            .andExpectAll(
+                status().isBadRequest(),
+                content().string("Käyttäjätilin poisto epäonnistui."));
+    }
 }

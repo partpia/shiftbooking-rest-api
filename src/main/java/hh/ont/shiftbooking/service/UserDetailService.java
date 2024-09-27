@@ -2,7 +2,6 @@ package hh.ont.shiftbooking.service;
 
 import java.util.NoSuchElementException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import hh.ont.shiftbooking.dto.CreateUserDto;
@@ -17,9 +16,12 @@ import hh.ont.shiftbooking.repository.UserRepository;
 @Service
 public class UserDetailService {
 
-    @Autowired
-    private UserRepository repository;
-    
+    private final UserRepository repository;
+
+    public UserDetailService(UserRepository repository) {
+        this.repository = repository;
+    }
+
     // tallentaa uuden käyttäjän tiedot tietokantaan
     public boolean saveNewUser(CreateUserDto uDto) throws Exception {
 
@@ -34,6 +36,19 @@ public class UserDetailService {
         } catch (IllegalArgumentException e) {
             throw new DatabaseException("Tilin luonti epäonnistui.");
         }        
+    }
+
+    // poistaa käyttäjätilin
+    public boolean deleteAccount(Long id) throws Exception {
+
+        try {
+            repository.findById(id).orElseThrow(
+                () -> new DatabaseException("Virheelliset käyttäjätiedot."));
+            repository.deleteById(id);
+            return true;
+        } catch (IllegalArgumentException e) {
+            throw new DatabaseException("Käyttäjätilin poisto epäonnistui.");
+        }
     }
 
     private boolean checkUserExists(String username) {
