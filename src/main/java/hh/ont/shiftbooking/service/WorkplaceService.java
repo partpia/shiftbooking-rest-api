@@ -1,5 +1,6 @@
 package hh.ont.shiftbooking.service;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import hh.ont.shiftbooking.dto.WorkplaceResponseDto;
@@ -24,7 +25,12 @@ public class WorkplaceService {
         this.userRepository = userRepository;
     }
 
-    // tallentaa uuden työpaikan tiedot tietokantaan, palauttaa dto:n
+    /**
+     * Tallentaa uuden työpaikan tiedot tietokantaan.
+     * @param workplace
+     * @return Tallennetun työpaikan tiedot (WorkplaceResponseDto)
+     * @throws Exception
+     */
     public WorkplaceResponseDto saveWorkplace(Workplace workplace) throws Exception {
 
         try {
@@ -42,4 +48,23 @@ public class WorkplaceService {
         }
     }
 
+    /**
+     * Poistaa työpaikan tiedot tietokannasta.
+     * @param id Poistettavan työpaikan yksilöllinen tunnus
+     * @return Poisto-operaatio tehty (true/false)
+     */
+    public boolean deleteWorkplace(Long id) throws Exception{
+
+        try {
+            workRepository.findById(id).orElseThrow(
+                () -> new DatabaseException("Virheelliset työpaikan tiedot."));
+            workRepository.deleteById(id);
+            return true;
+        } catch (IllegalArgumentException e) {
+            throw new DatabaseException("Työpaikan tietojen poisto epäonnistui.");
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException("""
+                Työpaikan tietojen poisto epäonnistui. Työpaikalla on työvuoroja varattavissa.""");
+        }
+    }
 }
