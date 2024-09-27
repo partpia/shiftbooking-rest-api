@@ -32,7 +32,8 @@ public class WorkplaceService {
             PostOffice postOffice = postService.getPostOfficeDetails(workplace.getZip());
             workplace.setZip(postOffice);
             // haetaan työnantajan tiedot
-            User employer = userRepository.findById(workplace.getContactPerson().getUserId()).get();
+            User employer = userRepository.findById(workplace.getContactPerson().getUserId()).orElseThrow(
+                () -> new DatabaseException("Työpaikan yhteyshenkilön tietoja ei löytynyt."));
             workplace.setContactPerson(employer);
             Workplace saved = workRepository.save(workplace);
             return new WorkplaceResponseDto(saved);
