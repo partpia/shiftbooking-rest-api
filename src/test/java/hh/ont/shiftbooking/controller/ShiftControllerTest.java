@@ -16,6 +16,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -167,6 +168,32 @@ public class ShiftControllerTest {
             .andExpectAll(
                 status().isBadRequest(),
                 content().string("Varattua vuoroa ei voi muokata."));
+    }
+
+    @Test
+    @DisplayName("Testaa työvuoron poistamisen rajapintaa, poistaminen onnistuu")
+    void deleteShiftReturnsOkTest() throws Exception {
+
+        Mockito.when(service.deleteShift(anyLong())).thenReturn(true);
+
+        mockMvc.perform(delete("/shifts/1")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpectAll(
+                status().isOk(),
+                content().string("Vuoro poistettu."));
+    }
+
+    @Test
+    @DisplayName("Testaa työvuoron poistamisen rajapintaa, poistaminen epäonnistuu")
+    void deleteShiftReturnsBadRequestTest() throws Exception {
+
+        Mockito.when(service.deleteShift(anyLong())).thenReturn(false);
+
+        mockMvc.perform(delete("/shifts/1")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpectAll(
+                status().isBadRequest(),
+                content().string("Varattua vuoroa ei voi poistaa."));
     }
 
     private Shift createShift() {

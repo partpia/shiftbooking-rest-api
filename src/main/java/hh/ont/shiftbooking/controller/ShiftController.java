@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,7 +54,7 @@ public class ShiftController {
         boolean booked = shiftService.bookShift(id, employee);
         return booked ? new ResponseEntity<>(
                 "Vuoron varaus onnistui.",
-                HttpStatus.CREATED) :
+                HttpStatus.OK) :
                 new ResponseEntity<>(
                 "Vuoron varaus epäonnistui.",
                 HttpStatus.INTERNAL_SERVER_ERROR);
@@ -74,7 +75,7 @@ public class ShiftController {
             HttpStatus.BAD_REQUEST);
     }
     
-    // vuoron muokkaaminen
+    // työvuoron muokkaaminen
     @PutMapping()
     public ResponseEntity<String> updateShift(@Valid @RequestBody Shift shift) throws Exception {
 
@@ -87,6 +88,22 @@ public class ShiftController {
             HttpStatus.OK) :
             new ResponseEntity<>(
             "Varattua vuoroa ei voi muokata.",
+            HttpStatus.BAD_REQUEST);
+    }
+
+    // työvuoron poistaminen
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteShift(@PathVariable Long id) throws Exception {
+
+        // TODO: oikeus vuoron poistoon
+
+        boolean deleted = shiftService.deleteShift(id);
+
+        return deleted ? new ResponseEntity<>(
+            "Vuoro poistettu.",
+            HttpStatus.OK) :
+            new ResponseEntity<>(
+            "Varattua vuoroa ei voi poistaa.",
             HttpStatus.BAD_REQUEST);
     }
 }

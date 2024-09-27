@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import hh.ont.shiftbooking.dto.ShiftResponseDto;
 import hh.ont.shiftbooking.enums.ShiftStatus;
 import hh.ont.shiftbooking.exception.DatabaseException;
+import hh.ont.shiftbooking.exception.RequestValidationException;
 import hh.ont.shiftbooking.model.Shift;
 import hh.ont.shiftbooking.model.User;
 import hh.ont.shiftbooking.model.Workplace;
@@ -34,6 +35,7 @@ public class ShiftService {
     }
 
     // tallentaa uuden työvuoron tiedot tietokantaan
+    // TODO: tarkistus, että työvuoron alku ei ole ennen loppua tms.?
     public Shift saveShift(Shift shift) throws DatabaseException {
         try {
             shift.setStatus(ShiftStatus.BOOKABLE);
@@ -124,6 +126,11 @@ public class ShiftService {
 
         try {
             Long id = details.getShiftId();
+
+            if (id == null) {
+                throw new RequestValidationException("Vuoron tiedot puutteelliset.");
+            }
+            
             Shift shift = shiftRepository.findById(id).orElseThrow(
                 () -> new DatabaseException("Vuoron tietoja ei löytynyt."));
 
@@ -136,6 +143,23 @@ public class ShiftService {
             return false;
         } catch (NoSuchElementException e) {
             throw new DatabaseException("Vuoron tietojen päivitys epäonnistui.");
+        }
+    }
+
+    // poistaa työvuoron, varattua työvuoroa ei voi poistaa (ShiftStatus.BOOKABLE)
+    public boolean deleteShift(Long id) throws Exception {
+
+        try {
+            Shift shift = shiftRepository.findById(id).orElseThrow(
+                () -> new DatabaseException("Vuoron tietoja ei löytynyt."));
+
+            if (isBookable(shift)) {
+                shiftRepository.delete(shift);
+                return true;
+            }
+            return false;
+        } catch (NoSuchElementException e) {
+            throw new DatabaseException("Vuoron poisto epäonnistui.");
         }
     }
 
