@@ -61,6 +61,23 @@ public class ShiftService {
         }
     }
 
+    /**
+     * Hakee työntekijän kaikki työvuorot.
+     * @param id Työntekijän käyttäjätilin yksilöllinen tunnus
+     * @return Listan työvuoroista, jotka käyttäjä on varannut (=ilmoittautunut työntekijäksi)
+     * @throws Exception
+     */
+    public List<ShiftResponseDto> getAllShiftsByEmployee(Long id) throws Exception {
+        try {
+            User employee = userRepository.findById(id).orElseThrow(
+                () -> new DatabaseException("Käyttäjän tiedot virheelliset."));
+            List<Shift> shifts = employee.getShifts();
+            return shifts.isEmpty() ? new ArrayList<>() : convertShiftListToDtos(shifts);
+        } catch (Exception e) {
+            throw new DatabaseException("Työvuoroja ei voida näyttää.");
+        }
+    } 
+
     // muuntaa Shift-entityt dto-muotoon
     private List<ShiftResponseDto> convertShiftListToDtos(List<Shift> shifts) {
         List <ShiftResponseDto> dtos = new ArrayList<>();

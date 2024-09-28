@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import hh.ont.shiftbooking.dto.CreateUserDto;
+import hh.ont.shiftbooking.dto.ShiftResponseDto;
 import hh.ont.shiftbooking.dto.WorkplaceResponseDto;
 import hh.ont.shiftbooking.exception.PasswordMatchException;
+import hh.ont.shiftbooking.service.ShiftService;
 import hh.ont.shiftbooking.service.UserDetailService;
 import hh.ont.shiftbooking.service.WorkplaceService;
 import jakarta.validation.Valid;
@@ -32,6 +34,9 @@ public class UserController {
 
     @Autowired
     private WorkplaceService workService;
+
+    @Autowired
+    private ShiftService shiftService;
 
     // uuden käyttäjän/tilin lisääminen
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -77,6 +82,13 @@ public class UserController {
     public List<WorkplaceResponseDto> getWorkplaces(@PathVariable Long id) throws Exception {
         // TODO: hakuoikeus
         return workService.getAllWorkplacesByEmployer(id);
+    }
+
+    // käyttäjäroolin EMPLOYEE työvuorotietojen hakeminen (vain omat tiedot)
+    @GetMapping("/{id}/shifts")
+    public List<ShiftResponseDto> getShifts(@PathVariable Long id) throws Exception {
+        // TODO: hakuoikeus
+        return shiftService.getAllShiftsByEmployee(id);
     }
 
     // TODO: put
