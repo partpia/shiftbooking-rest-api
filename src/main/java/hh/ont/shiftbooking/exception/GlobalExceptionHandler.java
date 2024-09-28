@@ -53,6 +53,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return response;
     }
 
+    @ExceptionHandler(RequestValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public AppException handleRequestValidationException(RequestValidationException e) {
+        AppException response = new AppException();
+        response.setTimestamp(LocalDateTime.now());
+        response.setStatus(HttpStatus.BAD_REQUEST.value());
+        response.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
+        response.setMessage(e.getMessage());
+        return response;
+    }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     @Override
