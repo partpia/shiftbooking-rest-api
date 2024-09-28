@@ -1,11 +1,14 @@
 package hh.ont.shiftbooking.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,6 +20,7 @@ import hh.ont.shiftbooking.dto.WorkplaceResponseDto;
 import hh.ont.shiftbooking.model.Workplace;
 import hh.ont.shiftbooking.service.WorkplaceService;
 import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("workplaces")
@@ -36,6 +40,11 @@ public class WorkplaceController {
             return new ResponseEntity<>("Työpaikan tietojen tallennus epäonnistui.",
                 HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping()
+    public List<WorkplaceResponseDto> getWorkplaces() throws Exception {
+        return workService.getAllWorkplaces();
     }
 
     @PutMapping()

@@ -1,5 +1,7 @@
 package hh.ont.shiftbooking.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import hh.ont.shiftbooking.dto.CreateUserDto;
+import hh.ont.shiftbooking.dto.WorkplaceResponseDto;
 import hh.ont.shiftbooking.exception.PasswordMatchException;
 import hh.ont.shiftbooking.service.UserDetailService;
+import hh.ont.shiftbooking.service.WorkplaceService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
@@ -25,6 +29,9 @@ public class UserController {
 
     @Autowired
     private UserDetailService service;
+
+    @Autowired
+    private WorkplaceService workService;
 
     // uuden käyttäjän/tilin lisääminen
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -63,6 +70,13 @@ public class UserController {
             new ResponseEntity<>(
             "Käyttäjätilin poisto epäonnistui.",
             HttpStatus.BAD_REQUEST);
+    }
+
+    // käyttäjäroolin EMPLOYER työpaikkatietojen hakeminen (vain omat tiedot)
+    @GetMapping("/{id}/workplaces")
+    public List<WorkplaceResponseDto> getWorkplaces(@PathVariable Long id) throws Exception {
+        // TODO: hakuoikeus
+        return workService.getAllWorkplacesByEmployer(id);
     }
 
     // TODO: put

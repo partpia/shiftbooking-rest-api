@@ -1,5 +1,8 @@
 package hh.ont.shiftbooking.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +52,36 @@ public class WorkplaceService {
     }
 
     /**
+     * Palauttaa kaikkien työpaikkojen tiedot.
+     * @return Listan työpaikoista
+     * @throws Exception
+     */
+    public List<WorkplaceResponseDto> getAllWorkplaces() throws Exception {
+
+        try {
+            List<Workplace> list = (List<Workplace>) workRepository.findAll();
+            return list.isEmpty() ? new ArrayList<>() : convertWorkplaceListToDtos(list);
+        } catch (Exception e) {
+            throw new DatabaseException("Työpaikkoja ei voida näyttää.");
+        }
+    }
+    /**
+     * Hakee työpaikkojen tiedot, joissa operaation tekijä on merkitty työpaikan yhteyshenkilöksi.
+     * @param id Työpaikan yhteyshenkilön yksilöllinen tunnus
+     * @return Listan työpaikoista, joissa työpaikka-listauksen hakija on työpaikan yhteyshenkilönä.
+     * @throws DatabaseException
+     */
+    public List<WorkplaceResponseDto> getAllWorkplacesByEmployer(Long id) throws DatabaseException {
+        try {
+            User user = userRepository.findById(id).get();
+            List<Workplace> list = user.getMyWorkplaces();
+            return list.isEmpty() ? new ArrayList<>() : convertWorkplaceListToDtos(list);
+        } catch (Exception e) {
+            throw new DatabaseException("Työpaikkoja ei voida näyttää.");
+        }
+    }
+
+    /**
      * Päivittää työpaikan tiedot.
      * @param workplace
      * @return Päivitysoperaatio onnistui (true/false)
@@ -91,5 +124,16 @@ public class WorkplaceService {
             throw new DatabaseException("""
                 Työpaikan tietojen poisto epäonnistui. Työpaikalla on työvuoroja varattavissa.""");
         }
+    }
+
+    // muuntaa Workplace-entityt dto-muotoon
+    public List<WorkplaceResponseDto> convertWorkplaceListToDtos(List<Workplace> workplaces) {
+        List<WorkplaceResponseDto> dtos = new ArrayList<>();
+
+        for (Workplace workplace : workplaces) {
+            WorkplaceResponseDto dto = new WorkplaceResponseDto(workplace);
+            dtos.add(dto);
+        }
+        return dtos;
     }
 }
