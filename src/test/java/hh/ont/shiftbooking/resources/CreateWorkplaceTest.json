@@ -1,0 +1,12 @@
+{
+    "title":"Lähikauppa",
+    "address":"Kauppatie 5",
+    "tel":"1234567",
+    "zip": {
+        "postalCode":"00810",
+        "city":"Helsinki"
+    },
+    "contactPerson": {
+        "userId": 1
+    }
+}

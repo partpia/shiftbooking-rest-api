@@ -33,7 +33,7 @@ public class WorkplaceController {
                 HttpStatus.CREATED);
         } catch (MethodArgumentNotValidException e) {
             return new ResponseEntity<>("Työpaikan tietojen tallennus epäonnistui.",
-                HttpStatus.INTERNAL_SERVER_ERROR);
+                HttpStatus.BAD_REQUEST);
         }
     }
     
