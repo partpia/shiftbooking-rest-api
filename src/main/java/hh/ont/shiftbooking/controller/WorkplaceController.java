@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +36,21 @@ public class WorkplaceController {
             return new ResponseEntity<>("Työpaikan tietojen tallennus epäonnistui.",
                 HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PutMapping()
+    public ResponseEntity<String> updateWorkplace(@Valid @RequestBody Workplace workplace) throws Exception {
+
+        // TODO: päivitysoikeus
+
+        boolean updated = workService.updateWorkplaceDetails(workplace);
+
+        return updated ? new ResponseEntity<>(
+            "Työpaikan tiedot päivitetty.",
+            HttpStatus.OK) :
+            new ResponseEntity<>(
+            "Työpaikan tietojen päivitys epäonnistui.",
+            HttpStatus.BAD_REQUEST);
     }
     
     @DeleteMapping("/{id}")

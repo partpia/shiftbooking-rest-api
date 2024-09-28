@@ -2,11 +2,8 @@ package hh.ont.shiftbooking.controller;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.io.File;
 
@@ -42,7 +39,7 @@ public class WorkplaceControllerTest {
     private ObjectMapper mapper;
 
     @Test
-    @DisplayName("Testaa työvuoron tallentamisen rajapintaa, tallentaminen onnistuu")
+    @DisplayName("Testaa työpaikan tallentamisen rajapintaa, tallentaminen onnistuu")
     void saveWorkplaceReturnsCreatedTest() throws Exception {
 
         Workplace w = getWorkplace();
@@ -57,8 +54,8 @@ public class WorkplaceControllerTest {
     }
 
     @Test
-    @DisplayName("Testaa työvuoron tallentamisen rajapintaa, pakollinen tieto null, tulee poikkeus")
-    void saveWorkplaceWithNullValueReturnsBadrequestTest() throws Exception {
+    @DisplayName("Testaa työpaikan tallentamisen rajapintaa, pakollinen tieto null, tulee poikkeus")
+    void saveWorkplaceWithNullValueReturnsBadRequestTest() throws Exception {
 
         Workplace w = getWorkplace();
         w.setTitle(null);
@@ -73,7 +70,55 @@ public class WorkplaceControllerTest {
     }
 
     @Test
-    @DisplayName("Testaa työvuoron poistamisen rajapintaa, poisto onnistuu")
+    @DisplayName("Testaa työpaikan tietojen päivittämisen rajapintaa, päivitys onnistuu")
+    void updateWorkplaceReturnsOkTest() throws Exception {
+
+        Workplace w = getWorkplace();
+
+        Mockito.when(serviceMock.updateWorkplaceDetails(any(Workplace.class))).thenReturn(true);
+
+        mockMvc.perform(put("/workplaces")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(w)))
+                .andExpectAll(
+                    status().isOk(),
+                    content().string("Työpaikan tiedot päivitetty."));
+    }
+
+    @Test
+    @DisplayName("Testaa työpaikan tietojen päivittämisen rajapintaa, päivitys epäonnistuu")
+    void updateWorkplaceReturnsBadRequestTest() throws Exception {
+
+        Workplace w = getWorkplace();
+
+        Mockito.when(serviceMock.updateWorkplaceDetails(any(Workplace.class))).thenReturn(false);
+
+        mockMvc.perform(put("/workplaces")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(w)))
+                .andExpectAll(
+                    status().isBadRequest(),
+                    content().string("Työpaikan tietojen päivitys epäonnistui."));
+    }
+
+    @Test
+    @DisplayName("Testaa työpaikan päivittämisen rajapintaa, pakollinen tieto null, tulee poikkeus")
+    void updateWorkplaceWithNullValueReturnsBadRequestTest() throws Exception {
+
+        Workplace w = getWorkplace();
+        w.setTitle(null);
+
+        mockMvc.perform(put("/workplaces")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(w)))
+                .andExpectAll(
+                    result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException),
+                    status().isBadRequest(),
+                    jsonPath("$.message").value("Virheellinen pyyntö."));
+    }
+
+    @Test
+    @DisplayName("Testaa työpaikan poistamisen rajapintaa, poisto onnistuu")
     void deleteWorkplaceReturnsOkTest() throws Exception {
 
         Mockito.when(serviceMock.deleteWorkplace(Mockito.anyLong())).thenReturn(true);
@@ -86,7 +131,7 @@ public class WorkplaceControllerTest {
     }
 
     @Test
-    @DisplayName("Testaa työvuoron poistamisen rajapintaa, poisto epäonnistuu")
+    @DisplayName("Testaa työpaikan poistamisen rajapintaa, poisto epäonnistuu")
     void deleteWorkplaceReturnsBadRequestTest() throws Exception {
 
         Mockito.when(serviceMock.deleteWorkplace(Mockito.anyLong())).thenReturn(false);

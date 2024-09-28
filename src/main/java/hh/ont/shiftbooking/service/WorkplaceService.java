@@ -49,6 +49,31 @@ public class WorkplaceService {
     }
 
     /**
+     * Päivittää työpaikan tiedot.
+     * @param workplace
+     * @return Päivitysoperaatio onnistui (true/false)
+     * @throws Exception
+     */
+    public boolean updateWorkplaceDetails(Workplace updated) throws Exception {
+
+        try {
+            workRepository.findById(updated.getWorkplaceId()).orElseThrow(
+                () -> new DatabaseException("Virheelliset työpaikan tiedot."));
+            // postitoimipaikan tiedot
+            PostOffice postOffice = postService.getPostOfficeDetails(updated.getZip());
+            updated.setZip(postOffice);
+            // työnantajan tiedot
+            userRepository.findById(updated.getContactPerson().getUserId()).orElseThrow(
+                () -> new DatabaseException("Työpaikan yhteyshenkilön tiedot virheelliset."));
+            
+            workRepository.save(updated);
+            return true;
+        } catch (IllegalArgumentException e) {
+            throw new DatabaseException("Päivitys epäonnistui.");
+        }
+    }
+
+    /**
      * Poistaa työpaikan tiedot tietokannasta.
      * @param id Poistettavan työpaikan yksilöllinen tunnus
      * @return Poisto-operaatio tehty (true/false)
