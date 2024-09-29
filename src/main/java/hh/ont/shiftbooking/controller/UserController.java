@@ -1,5 +1,6 @@
 package hh.ont.shiftbooking.controller;
 
+import java.net.URI;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,14 +11,17 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import hh.ont.shiftbooking.dto.CreateUserDto;
 import hh.ont.shiftbooking.dto.ShiftResponseDto;
+import hh.ont.shiftbooking.dto.UpdateUserDto;
 import hh.ont.shiftbooking.dto.WorkplaceResponseDto;
 import hh.ont.shiftbooking.exception.PasswordMatchException;
+import hh.ont.shiftbooking.model.User;
 import hh.ont.shiftbooking.service.ShiftService;
 import hh.ont.shiftbooking.service.UserDetailService;
 import hh.ont.shiftbooking.service.WorkplaceService;
@@ -43,13 +47,8 @@ public class UserController {
     public ResponseEntity<String> createNewUser(@Valid @RequestBody CreateUserDto userDTO) throws Exception {
 
         if (userDTO.getPassword().equals(userDTO.getPasswordCheck())) {
-            boolean userCreated = service.saveNewUser(userDTO);
-            return userCreated ? new ResponseEntity<>(
-                "Tili luotu käyttäjätunnuksella " + userDTO.getUsername(),
-                HttpStatus.CREATED) :
-                new ResponseEntity<>(
-                "Tilin luonti epäonnistui",
-                HttpStatus.INTERNAL_SERVER_ERROR);
+            User account = service.saveNewUser(userDTO);
+            return ResponseEntity.created(new URI(String.valueOf(account.getUserId()))).build();
         } else {
             throw new PasswordMatchException("Salasanat eivät täsmää");
         }
@@ -91,5 +90,19 @@ public class UserController {
         return shiftService.getAllShiftsByEmployee(id);
     }
 
-    // TODO: put
+    // päivittää käyttäjän tiedot
+    @PutMapping()
+    public ResponseEntity<String> updateAccount(@Valid @RequestBody UpdateUserDto dto) throws Exception {
+
+        // TODO: päivitysoikeus
+        
+        boolean updated = service.updateUserDetails(dto);
+
+        return updated ? new ResponseEntity<>(
+            "Käyttäjän tiedot päivitetty.",
+            HttpStatus.OK) :
+            new ResponseEntity<>(
+            "Käyttäjän tietojen päivitys epäonnistui.",
+            HttpStatus.BAD_REQUEST);
+    }
 }

@@ -1,0 +1,11 @@
+{
+    "userId":1,
+    "firstName":"Tellervo",
+    "lastName":"Työntekijä",
+    "email":"tellervo@mail.hh.ont",
+    "tel":"1234567",
+    "username":"tellu89",
+    "password":"testisalasana",
+    "passwordCheck":"testisalasana",
+    "role":"EMPLOYEE"
+}
