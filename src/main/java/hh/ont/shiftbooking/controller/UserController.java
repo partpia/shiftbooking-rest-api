@@ -23,7 +23,7 @@ import hh.ont.shiftbooking.dto.WorkplaceResponseDto;
 import hh.ont.shiftbooking.exception.PasswordMatchException;
 import hh.ont.shiftbooking.model.User;
 import hh.ont.shiftbooking.service.ShiftService;
-import hh.ont.shiftbooking.service.UserDetailService;
+import hh.ont.shiftbooking.service.UserService;
 import hh.ont.shiftbooking.service.WorkplaceService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -34,7 +34,7 @@ import jakarta.validation.constraints.NotNull;
 public class UserController {
 
     @Autowired
-    private UserDetailService service;
+    private UserService service;
 
     @Autowired
     private WorkplaceService workService;

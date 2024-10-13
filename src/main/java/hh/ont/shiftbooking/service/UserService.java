@@ -3,6 +3,7 @@ package hh.ont.shiftbooking.service;
 import java.util.NoSuchElementException;
 
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -22,11 +23,11 @@ import hh.ont.shiftbooking.repository.UserRepository;
 import hh.ont.shiftbooking.util.Utility;
 
 @Service
-public class UserDetailService {
+public class UserService {
 
     private final UserRepository repository;
 
-    public UserDetailService(UserRepository repository) {
+    public UserService(UserRepository repository) {
         this.repository = repository;
     }
 
@@ -69,9 +70,7 @@ public class UserDetailService {
         user.setEmail(dto.getEmail());
         user.setTel(dto.getTel());
         user.setUsername(dto.getUsername());
-        // TODO: hash password
-        //String pwd = dto.getPassword();
-        user.setPassword(dto.getPassword());
+        user.setPassword(new BCryptPasswordEncoder().encode(dto.getPassword()));
         user.setRole(dto.getRole());
         return user;
     }

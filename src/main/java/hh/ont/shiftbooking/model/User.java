@@ -1,6 +1,10 @@
 package hh.ont.shiftbooking.model;
 
+import java.util.Collection;
 import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import hh.ont.shiftbooking.enums.Role;
 import jakarta.persistence.Column;
@@ -19,7 +23,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -88,4 +92,10 @@ public class User {
         this.shifts = shifts;
         this.myWorkplaces = myWorkplaces;
     }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(() -> this.role.toString());
+    }
+    
 }
