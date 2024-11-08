@@ -6,6 +6,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -62,6 +64,30 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         response.setStatus(HttpStatus.BAD_REQUEST.value());
         response.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
         response.setMessage(e.getMessage());
+        return response;
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public AppException handleAuthenticationException(AuthenticationException e) {
+        AppException response = new AppException();
+        response.setTimestamp(LocalDateTime.now());
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setError(HttpStatus.UNAUTHORIZED.getReasonPhrase());
+        response.setMessage("Todentaminen epäonnistui.");
+        return response;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public AppException handleAccessDeniedException(AccessDeniedException e) {
+        AppException response = new AppException();
+        response.setTimestamp(LocalDateTime.now());
+        response.setStatus(HttpStatus.FORBIDDEN.value());
+        response.setError(HttpStatus.FORBIDDEN.getReasonPhrase());
+        response.setMessage("Ei käyttöoikeutta.");
         return response;
     }
 

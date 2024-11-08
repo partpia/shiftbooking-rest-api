@@ -1,5 +1,6 @@
 package hh.ont.shiftbooking;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import hh.ont.shiftbooking.security.CustomAuthenticationEntryPoint;
 import hh.ont.shiftbooking.security.JwtAuthenticationFilter;
 import hh.ont.shiftbooking.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,8 @@ public class SecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Qualifier("customAuthenticationEntryPoint")
+    private final CustomAuthenticationEntryPoint authEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -39,6 +43,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/accounts/register").permitAll()
                 .requestMatchers(HttpMethod.POST, "/accounts/authenticate").permitAll()
                 .anyRequest().authenticated())
+                .exceptionHandling(e -> e.authenticationEntryPoint(authEntryPoint))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
