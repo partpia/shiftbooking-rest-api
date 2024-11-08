@@ -3,6 +3,7 @@ package hh.ont.shiftbooking.controller;
 import java.net.URI;
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +18,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import hh.ont.shiftbooking.dto.CreateUserDto;
+import hh.ont.shiftbooking.dto.CredentialsDto;
 import hh.ont.shiftbooking.dto.ShiftResponseDto;
 import hh.ont.shiftbooking.dto.UpdateUserDto;
 import hh.ont.shiftbooking.dto.WorkplaceResponseDto;
 import hh.ont.shiftbooking.exception.PasswordMatchException;
 import hh.ont.shiftbooking.model.User;
+import hh.ont.shiftbooking.security.AuthenticationService;
 import hh.ont.shiftbooking.service.ShiftService;
 import hh.ont.shiftbooking.service.UserService;
 import hh.ont.shiftbooking.service.WorkplaceService;
@@ -38,6 +41,7 @@ public class UserController {
     private final UserService service;
     private final WorkplaceService workService;
     private final ShiftService shiftService;
+    private final AuthenticationService authService;
 
     // uuden käyttäjän/tilin lisääminen
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, path = "/register")
@@ -49,6 +53,15 @@ public class UserController {
         } else {
             throw new PasswordMatchException("Salasanat eivät täsmää");
         }
+    }
+
+    // JSON Web Tokenin luominen
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, path = "/authenticate")
+    public ResponseEntity<?> getToken(@RequestBody CredentialsDto dto) throws Exception {
+        String token = authService.authenticate(dto);
+        
+        return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+            .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization").build();
     }
 
     // käyttäjätietojen hakeminen
