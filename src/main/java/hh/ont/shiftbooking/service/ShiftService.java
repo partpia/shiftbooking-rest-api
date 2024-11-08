@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import hh.ont.shiftbooking.dto.ShiftResponseDto;
@@ -35,15 +36,18 @@ public class ShiftService {
     }
 
     // tallentaa uuden työvuoron tiedot tietokantaan
-    // TODO: tarkistus, että työvuoron alku ei ole ennen loppua tms.?
     public Shift saveShift(Shift shift) throws DatabaseException {
         try {
             shift.setStatus(ShiftStatus.BOOKABLE);
             // haetaan työpaikan tiedot
             Long workplaceId = shift.getLocation().getWorkplaceId();
             Workplace workplace = workplaceRepository.findById(workplaceId).get();
-            shift.setLocation(workplace);
-            return shiftRepository.save(shift);
+            if (SecurityContextHolder.getContext().getAuthentication().getName().equals(workplace.getContactPerson().getUsername())) {
+                shift.setLocation(workplace);
+                return shiftRepository.save(shift);
+            } else {
+                throw new DatabaseException("Virheelliset tiedot.");
+            }
         } catch (NoSuchElementException | NullPointerException e) {
             throw new DatabaseException("Työpaikan tiedot virheelliset.");
         } catch (DataAccessException e) {
@@ -123,7 +127,7 @@ public class ShiftService {
             Shift shift = shiftRepository.findById(id).orElseThrow(
                 () -> new DatabaseException("Vuoron tietoja ei löytynyt."));
 
-            if (shiftIsPossibleToCancel(shift)) {
+            if (shiftIsPossibleToCancel(shift) && validateUser(shift)) {
                 shift.setEmployee(null);
                 shift.setStatus(ShiftStatus.BOOKABLE);
                 shiftRepository.save(shift);
@@ -151,7 +155,7 @@ public class ShiftService {
             Shift shift = shiftRepository.findById(id).orElseThrow(
                 () -> new DatabaseException("Vuoron tietoja ei löytynyt."));
 
-            if (isBookable(shift)) {
+            if (isBookable(shift) && validateEmployee(shift)) {
                 details.setStatus(ShiftStatus.BOOKABLE);
                 details.setShiftId(id);
                 shiftRepository.save(details);
@@ -170,7 +174,7 @@ public class ShiftService {
             Shift shift = shiftRepository.findById(id).orElseThrow(
                 () -> new DatabaseException("Vuoron tietoja ei löytynyt."));
 
-            if (isBookable(shift)) {
+            if (isBookable(shift) && validateEmployee(shift)) {
                 shiftRepository.delete(shift);
                 return true;
             }
@@ -192,5 +196,21 @@ public class ShiftService {
     // tarkastaa onko vuoro varattavissa (ShiftStatus.BOOKABLE)
     private boolean isBookable(Shift bookable) {
         return bookable != null && bookable.getStatus().equals(ShiftStatus.BOOKABLE);
+    }
+
+    // tarkastaa onko vuoron varaaja sama kuin todennettu käyttäjä
+    private boolean validateUser(Shift shift) {
+        String currEmployee = shift.getEmployee().getUsername();
+
+        return SecurityContextHolder.getContext().getAuthentication().getName().equals(currEmployee) ?
+            true : false;
+    }
+
+    // tarkastaa onko vuoron muokkaaja/poistaja sama kuin todennettu käyttäjä
+    private boolean validateEmployee(Shift shift) {
+        String employer = shift.getLocation().getContactPerson().getUsername();
+
+        return SecurityContextHolder.getContext().getAuthentication().getName().equals(employer) ?
+            true : false;
     }
 }

@@ -30,7 +30,7 @@ public class PostOfficeService {
         try {
             PostOffice postOffice = repository.findByPostalCode(po.getPostalCode());
             return (postOffice != null) ? postOffice : repository.save(po);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             throw new DatabaseException("Tallennus epäonnistui.");
         }
     }

@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import hh.ont.shiftbooking.dto.WorkplaceResponseDto;
 import hh.ont.shiftbooking.exception.DatabaseException;
+import hh.ont.shiftbooking.exception.RequestValidationException;
 import hh.ont.shiftbooking.model.PostOffice;
 import hh.ont.shiftbooking.model.User;
 import hh.ont.shiftbooking.model.Workplace;
@@ -43,9 +45,14 @@ public class WorkplaceService {
             // haetaan työnantajan tiedot
             User employer = userRepository.findById(workplace.getContactPerson().getUserId()).orElseThrow(
                 () -> new DatabaseException("Työpaikan yhteyshenkilön tietoja ei löytynyt."));
-            workplace.setContactPerson(employer);
-            Workplace saved = workRepository.save(workplace);
-            return new WorkplaceResponseDto(saved);
+
+            if (SecurityContextHolder.getContext().getAuthentication().getName().equals(employer.getUsername())) {
+                workplace.setContactPerson(employer);
+                Workplace saved = workRepository.save(workplace);
+                return new WorkplaceResponseDto(saved);
+            } else {
+                throw new RequestValidationException("Virheelliset tiedot.");
+            }
         } catch (IllegalArgumentException e) {
             throw new DatabaseException("Tallennus epäonnistui.");
         }
@@ -114,10 +121,15 @@ public class WorkplaceService {
     public boolean deleteWorkplace(Long id) throws Exception{
 
         try {
-            workRepository.findById(id).orElseThrow(
+            Workplace workplace = workRepository.findById(id).orElseThrow(
                 () -> new DatabaseException("Virheelliset työpaikan tiedot."));
-            workRepository.deleteById(id);
-            return true;
+            String contactPerson = workplace.getContactPerson().getUsername();
+
+            if (SecurityContextHolder.getContext().getAuthentication().getName().equals(contactPerson)) {
+                workRepository.deleteById(id);
+                return true;
+            }
+            return false;
         } catch (IllegalArgumentException e) {
             throw new DatabaseException("Työpaikan tietojen poisto epäonnistui.");
         } catch (DataIntegrityViolationException e) {
