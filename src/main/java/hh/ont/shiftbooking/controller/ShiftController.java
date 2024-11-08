@@ -2,10 +2,10 @@ package hh.ont.shiftbooking.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,22 +20,24 @@ import hh.ont.shiftbooking.dto.ShiftResponseDto;
 import hh.ont.shiftbooking.model.Shift;
 import hh.ont.shiftbooking.service.ShiftService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 
 @RestController
 @RequestMapping("shifts")
+@RequiredArgsConstructor
 public class ShiftController {
 
-    @Autowired
-    ShiftService shiftService;
-    
+    private final ShiftService shiftService;
+
     // uuden työvuoron lisääminen
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('EMPLOYER')")
     public ResponseEntity<Object> createShift(@Valid @RequestBody Shift shift) throws Exception {
+        Shift created = shiftService.saveShift(shift);
+        ShiftResponseDto dto = new ShiftResponseDto(created);
 
-            Shift created = shiftService.saveShift(shift);
-            ShiftResponseDto dto = new ShiftResponseDto(created);
-            return new ResponseEntity<>(dto, HttpStatus.CREATED);
+        return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
     // varattavissa olevien työvuorojen hakeminen
@@ -46,12 +48,11 @@ public class ShiftController {
 
     // työvuoron varaaminen
     @PutMapping("/{id}/bookings")
+    @PreAuthorize("hasAuthority('EMPLOYEE') && #employee == authentication.principal.userId")
     public ResponseEntity<String> bookShift(@PathVariable(required = true) Long id, @RequestParam Long employee)
         throws Exception {
-        // TODO: headerista jwt > vuoron varaajan tiedot (employee)
-        // nyt otetaan toistaiseksi requestparam
-
         boolean booked = shiftService.bookShift(id, employee);
+        
         return booked ? new ResponseEntity<>(
                 "Vuoron varaus onnistui.",
                 HttpStatus.OK) :
@@ -62,11 +63,9 @@ public class ShiftController {
 
     // varatun työvuoron peruminen
     @PutMapping("/{id}/cancellations")
-    public ResponseEntity<String> cancelShift(@PathVariable Long id) throws Exception {
-
-        // TODO: työvuoron voi perua työvuoron varaaja tai admin
-        
+    public ResponseEntity<String> cancelShift(@PathVariable Long id) throws Exception {        
         boolean calcelled = shiftService.cancelShift(id);
+
         return calcelled ? new ResponseEntity<>(
             "Vuoro peruttu.",
             HttpStatus.OK) :
@@ -77,10 +76,8 @@ public class ShiftController {
     
     // työvuoron muokkaaminen
     @PutMapping()
-    public ResponseEntity<String> updateShift(@Valid @RequestBody Shift shift) throws Exception {
-
-        // TODO: vain vuoron lisännyt voi muokata
-    
+    @PreAuthorize("hasAuthority('EMPLOYER')")
+    public ResponseEntity<String> updateShift(@Valid @RequestBody Shift shift) throws Exception {    
         boolean updated = shiftService.updateShiftDetails(shift);
 
         return updated ? new ResponseEntity<>(
@@ -93,10 +90,8 @@ public class ShiftController {
 
     // työvuoron poistaminen
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('EMPLOYER')")
     public ResponseEntity<String> deleteShift(@PathVariable Long id) throws Exception {
-
-        // TODO: oikeus vuoron poistoon
-
         boolean deleted = shiftService.deleteShift(id);
 
         return deleted ? new ResponseEntity<>(

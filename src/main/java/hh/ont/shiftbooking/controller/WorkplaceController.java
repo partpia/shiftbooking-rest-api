@@ -2,10 +2,11 @@ package hh.ont.shiftbooking.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,16 +21,18 @@ import hh.ont.shiftbooking.dto.WorkplaceResponseDto;
 import hh.ont.shiftbooking.model.Workplace;
 import hh.ont.shiftbooking.service.WorkplaceService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 
 @RestController
 @RequestMapping("workplaces")
+@RequiredArgsConstructor
 public class WorkplaceController {
 
-    @Autowired
-    WorkplaceService workService;
+    private final WorkplaceService workService;
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostAuthorize("hasAuthority('EMPLOYER')")
     public ResponseEntity<?> createWorkplace(@Valid @RequestBody Workplace workplace) throws Exception {
 
         try {
@@ -48,10 +51,8 @@ public class WorkplaceController {
     }
 
     @PutMapping()
+    @PreAuthorize("hasAuthority('EMPLOYER') && #workplace.contactPerson.userId == authentication.principal.userId")
     public ResponseEntity<String> updateWorkplace(@Valid @RequestBody Workplace workplace) throws Exception {
-
-        // TODO: päivitysoikeus
-
         boolean updated = workService.updateWorkplaceDetails(workplace);
 
         return updated ? new ResponseEntity<>(
@@ -63,10 +64,8 @@ public class WorkplaceController {
     }
     
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('EMPLOYER')")
     public ResponseEntity<String> deleteWorkplace(@PathVariable Long id) throws Exception {
-
-        // TODO: poisto-oikeus
-
         boolean deleted = workService.deleteWorkplace(id);
 
         return deleted ? new ResponseEntity<>(

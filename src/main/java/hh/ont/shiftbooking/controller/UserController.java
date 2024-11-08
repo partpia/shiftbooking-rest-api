@@ -3,10 +3,10 @@ package hh.ont.shiftbooking.controller;
 import java.net.URI;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,23 +27,20 @@ import hh.ont.shiftbooking.service.UserService;
 import hh.ont.shiftbooking.service.WorkplaceService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 
 
 @RestController
 @RequestMapping("accounts")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserService service;
-
-    @Autowired
-    private WorkplaceService workService;
-
-    @Autowired
-    private ShiftService shiftService;
+    private final UserService service;
+    private final WorkplaceService workService;
+    private final ShiftService shiftService;
 
     // uuden käyttäjän/tilin lisääminen
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, path = "/register")
     public ResponseEntity<String> createNewUser(@Valid @RequestBody CreateUserDto userDTO) throws Exception {
 
         if (userDTO.getPassword().equals(userDTO.getPasswordCheck())) {
@@ -55,15 +52,15 @@ public class UserController {
     }
 
     // käyttäjätietojen hakeminen
-    // TODO: pathvariable pois > jwt:n rooli ?
     @GetMapping("/{id}")
+    @PreAuthorize("#id == authentication.principal.userId")
     public Object getAccount(@PathVariable(required = true) Long id) throws Exception {
         return service.getAccountDetails(id);
     }
     
     // poistaa käyttäjätilin
-    // TODO: todentaminen, oikeus poistoon
     @DeleteMapping("/{id}")
+    @PreAuthorize("#id == authentication.principal.userId")
     public ResponseEntity<String> deleteAccount(@PathVariable @NotNull Long id) throws Exception {
 
         boolean deleted = service.deleteAccount(id);
@@ -78,24 +75,22 @@ public class UserController {
 
     // käyttäjäroolin EMPLOYER työpaikkatietojen hakeminen (vain omat tiedot)
     @GetMapping("/{id}/workplaces")
+    @PreAuthorize("hasAuthority('EMPLOYER') && #id == authentication.principal.userId")
     public List<WorkplaceResponseDto> getWorkplaces(@PathVariable Long id) throws Exception {
-        // TODO: hakuoikeus
         return workService.getAllWorkplacesByEmployer(id);
     }
 
     // käyttäjäroolin EMPLOYEE työvuorotietojen hakeminen (vain omat tiedot)
     @GetMapping("/{id}/shifts")
+    @PreAuthorize("hasAuthority('EMPLOYEE') && #id == authentication.principal.userId")
     public List<ShiftResponseDto> getShifts(@PathVariable Long id) throws Exception {
-        // TODO: hakuoikeus
         return shiftService.getAllShiftsByEmployee(id);
     }
 
     // päivittää käyttäjän tiedot
     @PutMapping()
+    @PreAuthorize("#dto.userId == authentication.principal.userId")
     public ResponseEntity<String> updateAccount(@Valid @RequestBody UpdateUserDto dto) throws Exception {
-
-        // TODO: päivitysoikeus
-        
         boolean updated = service.updateUserDetails(dto);
 
         return updated ? new ResponseEntity<>(
