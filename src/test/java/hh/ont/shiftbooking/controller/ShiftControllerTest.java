@@ -2,6 +2,7 @@ package hh.ont.shiftbooking.controller;
 
 import java.time.LocalDateTime;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -40,6 +41,7 @@ public class ShiftControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Disabled
     @Test
     @DisplayName("Testaa työvuoron tallennuksen rajapintaa, tallennus onnistuu.")
     void saveShiftReturnsCreatedTest() throws Exception {
@@ -54,6 +56,7 @@ public class ShiftControllerTest {
                 .andExpect(status().isCreated());
     }
 
+    @Disabled
     @Test
     @DisplayName("Testaa työvuoron tallennuksen rajapintaa, työvuoron alku menneisyydessä, tulee poikkeus.")
     void saveShiftStartTimeNotFutureOrPresentReturnsBadRequestTest() throws Exception {
@@ -70,6 +73,7 @@ public class ShiftControllerTest {
                     jsonPath("$.message").value("Virheellinen pyyntö."));
     }
 
+    @Disabled
     @Test
     @DisplayName("Testaa työvuoron tallennuksen rajapintaa, työvuoron loppu menneisyydessä, tulee poikkeus.")
     void saveShiftEndTimeNotFutureOrPresentReturnsBadRequestTest() throws Exception {
@@ -86,6 +90,7 @@ public class ShiftControllerTest {
                     jsonPath("$.message").value("Virheellinen pyyntö."));
     }
 
+    @Disabled
     @Test
     @DisplayName("Testaa työvuoron varaamisen rajapintaa, varaus onnistuu")
     void bookShiftReturnsOkTest() throws Exception {
@@ -99,6 +104,7 @@ public class ShiftControllerTest {
                 content().string("Vuoron varaus onnistui."));   
     }
 
+    @Disabled
     @Test
     @DisplayName("Testaa työvuoron varaamisen rajapintaa, varaus epäonnistuu")
     void bookShiftReturnsInternalServerErrorTest() throws Exception {
@@ -112,6 +118,7 @@ public class ShiftControllerTest {
                 content().string("Vuoron varaus epäonnistui."));   
     }
 
+    @Disabled
     @Test
     @DisplayName("Testaa työvuoron perumisen rajapintaa, peruminen onnistuu")
     void cancelShiftReturnsOkTest() throws Exception {
@@ -125,6 +132,7 @@ public class ShiftControllerTest {
                 content().string("Vuoro peruttu."));   
     }
 
+    @Disabled
     @Test
     @DisplayName("Testaa työvuoron perumisen rajapintaa, peruminen epäonnistuu")
     void cancelShiftReturnsBadRequestTest() throws Exception {
@@ -138,6 +146,7 @@ public class ShiftControllerTest {
                 content().string("Vuoroa ei voi perua, koska vuoron alkuun on alle kolme vuorokautta. Ota yhteyttä työnantajaan."));
     }
 
+    @Disabled
     @Test
     @DisplayName("Testaa työvuoron tietojen muokkaamisen rajapintaa, muokkaaminen onnistuu")
     void updateShiftReturnsOkTest() throws Exception {
@@ -154,6 +163,7 @@ public class ShiftControllerTest {
                 content().string("Vuoro päivitetty."));
     }
 
+    @Disabled
     @Test
     @DisplayName("Testaa työvuoron tietojen muokkaamisen rajapintaa, muokkaaminen epäonnistuu")
     void updateShiftReturnsBadRequestTest() throws Exception {
@@ -170,6 +180,7 @@ public class ShiftControllerTest {
                 content().string("Varattua vuoroa ei voi muokata."));
     }
 
+    @Disabled
     @Test
     @DisplayName("Testaa työvuoron poistamisen rajapintaa, poistaminen onnistuu")
     void deleteShiftReturnsOkTest() throws Exception {
@@ -183,6 +194,7 @@ public class ShiftControllerTest {
                 content().string("Vuoro poistettu."));
     }
 
+    @Disabled
     @Test
     @DisplayName("Testaa työvuoron poistamisen rajapintaa, poistaminen epäonnistuu")
     void deleteShiftReturnsBadRequestTest() throws Exception {

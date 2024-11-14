@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.File;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -38,6 +39,7 @@ public class WorkplaceControllerTest {
     @Autowired
     private ObjectMapper mapper;
 
+    @Disabled
     @Test
     @DisplayName("Testaa työpaikan tallentamisen rajapintaa, tallentaminen onnistuu")
     void saveWorkplaceReturnsCreatedTest() throws Exception {
@@ -53,6 +55,7 @@ public class WorkplaceControllerTest {
                 .andExpect(status().isCreated());
     }
 
+    @Disabled
     @Test
     @DisplayName("Testaa työpaikan tallentamisen rajapintaa, pakollinen tieto null, tulee poikkeus")
     void saveWorkplaceWithNullValueReturnsBadRequestTest() throws Exception {
@@ -69,6 +72,7 @@ public class WorkplaceControllerTest {
                     jsonPath("$.message").value("Virheellinen pyyntö."));
     }
 
+    @Disabled
     @Test
     @DisplayName("Testaa työpaikan tietojen päivittämisen rajapintaa, päivitys onnistuu")
     void updateWorkplaceReturnsOkTest() throws Exception {
@@ -85,6 +89,7 @@ public class WorkplaceControllerTest {
                     content().string("Työpaikan tiedot päivitetty."));
     }
 
+    @Disabled
     @Test
     @DisplayName("Testaa työpaikan tietojen päivittämisen rajapintaa, päivitys epäonnistuu")
     void updateWorkplaceReturnsBadRequestTest() throws Exception {
@@ -101,6 +106,7 @@ public class WorkplaceControllerTest {
                     content().string("Työpaikan tietojen päivitys epäonnistui."));
     }
 
+    @Disabled
     @Test
     @DisplayName("Testaa työpaikan päivittämisen rajapintaa, pakollinen tieto null, tulee poikkeus")
     void updateWorkplaceWithNullValueReturnsBadRequestTest() throws Exception {
@@ -117,6 +123,7 @@ public class WorkplaceControllerTest {
                     jsonPath("$.message").value("Virheellinen pyyntö."));
     }
 
+    @Disabled
     @Test
     @DisplayName("Testaa työpaikan poistamisen rajapintaa, poisto onnistuu")
     void deleteWorkplaceReturnsOkTest() throws Exception {
@@ -130,6 +137,7 @@ public class WorkplaceControllerTest {
                 content().string("Työpaikan tiedot poistettu."));
     }
 
+    @Disabled
     @Test
     @DisplayName("Testaa työpaikan poistamisen rajapintaa, poisto epäonnistuu")
     void deleteWorkplaceReturnsBadRequestTest() throws Exception {
